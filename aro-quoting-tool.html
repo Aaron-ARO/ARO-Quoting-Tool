@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Pricing Worksheet</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#27AE60;--dark:#141a14;--mid:#1c241c;--panel:#222d22;--border:#2e3d2e;
+  --muted:#5a7a5a;--text:#E8EDE8;--sub:#92aa92;--green:#2ECC71;--red:#E74C3C;
+  --blue:#3B9EE8;--yellow:#F0A500;--r:6px;--f:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{background:var(--dark);color:var(--text);font-family:var(--f);font-size:14px;min-height:100vh}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+
+/* HEADER */
+.app-header{background:var(--mid);border-bottom:2px solid var(--orange);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:12px;flex-wrap:wrap}
+.logo-area{display:flex;align-items:center;gap:10px}
+.logo-mark{width:34px;height:34px;background:var(--orange);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;letter-spacing:-0.5px;flex-shrink:0}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase}
+.header-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{padding:7px 13px;border-radius:var(--r);border:none;font-family:var(--f);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-primary{background:var(--orange);color:#fff}.btn-primary:hover{background:#1e8a47}
+.btn-ghost{background:transparent;color:var(--sub);border:1px solid var(--border)}.btn-ghost:hover{background:var(--panel);color:var(--text)}
+.btn-green{background:#1a3a22;color:var(--green);border:1px solid #2ECC7133}.btn-green:hover{background:#1f4a2a}
+.btn-danger{background:transparent;color:var(--red);border:1px solid #E74C3C33}.btn-danger:hover{background:#2a1414}
+.btn-sm{padding:4px 9px;font-size:12px}.btn-icon{padding:5px 7px}
+
+/* LAYOUT */
+.app-body{max-width:1180px;margin:0 auto;padding:20px 16px}
+
+/* JOB CARD */
+.job-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:18px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--orange)}
+.job-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:11px}
+.field-group{display:flex;flex-direction:column;gap:4px}
+.field-group label{font-size:10px;color:var(--muted);font-weight:500;letter-spacing:.4px}
+.field-group input,.field-group select,.field-group textarea{background:var(--dark);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--f);font-size:13px;padding:7px 9px;width:100%;transition:border-color .15s}
+.field-group input:focus,.field-group select:focus,.field-group textarea:focus{outline:none;border-color:var(--orange)}
+.field-group select option{background:var(--dark)}
+.field-full{grid-column:1/-1}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase}
+.badge-elec{background:#152a3a;color:var(--blue)}
+.badge-ac{background:#152a20;color:#4ecca3}
+.badge-solar{background:#2a2a10;color:var(--yellow)}
+
+/* SUMMARY TOTALS (Grand Total bar) */
+.totals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.total-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.total-card.hi{border-color:var(--orange)}
+.total-label{font-size:10px;color:var(--muted);margin-bottom:5px;letter-spacing:.4px}
+.total-value{font-family:var(--mono);font-size:19px;font-weight:600}
+.total-value.orange{color:var(--orange)}.total-value.green{color:var(--green)}.total-value.red{color:var(--red)}.total-value.blue{color:var(--blue)}
+
+/* TABS */
+.tab-nav{display:flex;gap:2px;background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:3px;width:fit-content;margin-bottom:16px}
+.tab-btn{padding:7px 16px;border-radius:4px;border:none;background:transparent;color:var(--muted);font-family:var(--f);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.tab-btn.active{background:var(--orange);color:#fff}
+.tab-btn:not(.active):hover{color:var(--text);background:var(--border)}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* STAGE CARD */
+.stage-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:18px;overflow:hidden}
+.stage-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#1a2419;border-bottom:2px solid var(--orange);gap:12px;flex-wrap:wrap}
+.stage-name-input{background:transparent;border:1px solid transparent;color:var(--text);font-family:var(--f);font-size:15px;font-weight:600;padding:5px 8px;border-radius:4px;min-width:160px;transition:border-color .15s}
+.stage-name-input:hover,.stage-name-input:focus{border-color:var(--border);background:var(--dark)}
+.stage-header-actions{display:flex;gap:6px;align-items:center}
+.stage-body{padding:14px 18px}
+.stage-subtotal-bar{display:flex;gap:18px;flex-wrap:wrap;padding:12px 18px;background:#181f17;border-top:1px solid var(--border)}
+.stage-subtotal-item{display:flex;flex-direction:column;gap:2px}
+.stage-subtotal-label{font-size:10px;color:var(--muted);letter-spacing:.4px}
+.stage-subtotal-value{font-family:var(--mono);font-size:15px;font-weight:600}
+
+/* SUB-SECTION (parts/labour within a stage) */
+.subsection-title{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--sub);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+
+/* SUPPLIER BAR */
+.supplier-bar{padding:8px 0;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.supplier-bar select{background:var(--dark);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--f);font-size:12px;padding:5px 9px;min-width:160px}
+.supplier-tag{display:none;font-size:11px;padding:3px 10px;background:#1a3a22;border:1px solid var(--green);border-radius:10px;color:var(--green);font-weight:600}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:9px 10px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);background:#171f17;border-bottom:1px solid var(--border);white-space:nowrap}
+thead th.r{text-align:right}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#ffffff05}
+tbody td{padding:6px 10px;vertical-align:middle}
+tbody td.r{text-align:right;font-family:var(--mono);font-size:13px}
+tbody td.num-blue{text-align:right;font-family:var(--mono);font-size:13px;color:var(--blue)}
+tbody td.num-green{text-align:right;font-family:var(--mono);font-size:13px;color:var(--green)}
+.td-input{background:transparent;border:1px solid transparent;color:var(--text);font-family:var(--f);font-size:13px;padding:4px 6px;border-radius:4px;width:100%;transition:border-color .15s}
+.td-input:focus{outline:none;border-color:var(--orange);background:var(--dark)}
+.td-input.r{font-family:var(--mono);text-align:right}
+.row-num{color:var(--muted);font-size:11px;font-family:var(--mono);text-align:center;width:28px}
+.add-row-area{padding:8px 12px;background:#171f17}
+
+/* RATES TABLE */
+.rates-table{width:100%;border-collapse:collapse}
+.rates-table th{padding:9px 14px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);background:#171f17;border-bottom:1px solid var(--border)}
+.rates-table th.r{text-align:right}
+.rates-table td{padding:7px 14px;border-bottom:1px solid var(--border)}
+.rates-table tr:last-child td{border-bottom:none}
+
+/* BACK COSTING */
+.bc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.bc-grid{grid-template-columns:1fr}}
+.bc-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.bc-row:last-child{border-bottom:none}
+.bc-key{color:var(--sub)}
+.bc-val{font-family:var(--mono);font-weight:500}
+.bc-val.green{color:var(--green)}.bc-val.red{color:var(--red)}.bc-val.yellow{color:var(--yellow)}
+.margin-bar-wrap{margin-top:14px}
+.bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px}
+.margin-bar{height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.margin-fill{height:100%;border-radius:4px;transition:width .4s}
+.bc-hint{font-size:11px;color:var(--muted);margin-top:6px}
+.bc-stage-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+.bc-stage-header{padding:10px 16px;background:#1a2419;font-size:13px;font-weight:600;border-bottom:1px solid var(--border)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:#000000cc;display:none;align-items:center;justify-content:center;z-index:200}
+.modal-bg.open{display:flex}
+.modal{background:var(--mid);border:1px solid var(--border);border-radius:8px;padding:22px;width:500px;max-width:95vw;max-height:80vh;overflow-y:auto}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:14px}
+.saved-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:7px;transition:border-color .15s}
+.saved-item:hover{border-color:var(--orange)}
+.saved-name{font-weight:500;font-size:13px}
+.saved-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.modal-footer{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
+.empty-state{text-align:center;padding:28px;color:var(--muted);font-size:13px}
+
+/* EXPORT MENU */
+#exportMenu{display:none;position:fixed;top:58px;right:16px;z-index:150;background:var(--mid);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;min-width:230px}
+#exportMenu .exp-btn{display:block;width:100%;text-align:left;padding:11px 15px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--f);font-size:13px;cursor:pointer;transition:background .15s}
+#exportMenu .exp-btn:last-child{border-bottom:none}
+#exportMenu .exp-btn:hover{background:var(--panel)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--mid);border:1px solid var(--border);border-radius:var(--r);padding:10px 16px;font-size:13px;z-index:300;transform:translateY(70px);opacity:0;transition:all .25s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.error{border-color:var(--red);color:var(--red)}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo-area">
+    <div class="logo-mark" id="logoMark">ARO</div>
+    <div>
+      <input id="businessName" placeholder="Your Business Name" value="ARO Electrical & Air"
+        style="background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--f);font-size:15px;font-weight:600;width:220px;padding:2px 4px;outline:none"
+        oninput="updateLogo()" onfocus="this.style.borderBottomColor='var(--orange)'" onblur="this.style.borderBottomColor='var(--border)'">
+      <div class="logo-sub">Project Pricing Worksheet</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="newQuote()">+ New</button>
+    <button class="btn btn-ghost" onclick="openLoadModal()">Load Quote</button>
+    <button class="btn btn-ghost" onclick="triggerImport()">📂 Import Quote</button>
+    <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
+    <button class="btn btn-green" onclick="saveQuote()">💾 Save</button>
+    <button class="btn btn-primary" onclick="toggleExportMenu()">Export ▾</button>
+  </div>
+</header>
+
+<div id="exportMenu">
+  <button class="exp-btn" onclick="exportPDF('quote');closeExportMenu()">📄 Full Quote Document</button>
+  <button class="exp-btn" onclick="exportPDF('parts');closeExportMenu()">🔧 Parts List Only</button>
+  <button class="exp-btn" onclick="exportPDF('backcost');closeExportMenu()">📊 Back-Costing Report</button>
+  <button class="exp-btn" onclick="exportQuoteFile();closeExportMenu()" style="color:var(--green)">💾 Quote File (for re-import)</button>
+</div>
+
+<div class="app-body">
+
+  <!-- JOB DETAILS -->
+  <div class="job-card">
+    <div class="card-header">
+      <span class="section-label">Job Details</span>
+      <span id="tradeBadge" class="badge badge-elec">Electrical</span>
+    </div>
+    <div class="job-grid">
+      <div class="field-group">
+        <label>Quote Number</label>
+        <input type="text" id="quoteNumber" placeholder="e.g. Q-2024-001" oninput="markDirty()">
+      </div>
+      <div class="field-group">
+        <label>Date</label>
+        <input type="date" id="quoteDate" oninput="markDirty()">
+      </div>
+      <div class="field-group">
+        <label>Trade Type</label>
+        <select id="tradeType" onchange="updateBadge();markDirty()">
+          <option value="electrical">Electrical</option>
+          <option value="aircon">Air Conditioning</option>
+          <option value="solar">Solar</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Client Name</label>
+        <input type="text" id="clientName" placeholder="Client / Company" oninput="markDirty()">
+      </div>
+      <div class="field-group">
+        <label>Site Address</label>
+        <input type="text" id="siteAddress" placeholder="Job site address" oninput="markDirty()">
+      </div>
+      <div class="field-group">
+        <label>Contact Phone</label>
+        <input type="text" id="contactPhone" placeholder="Phone number" oninput="markDirty()">
+      </div>
+      <div class="field-group field-full">
+        <label>Scope of Work</label>
+        <textarea id="jobDescription" rows="2" placeholder="Brief description of the scope of work..." oninput="markDirty()" style="resize:vertical"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRAND TOTALS BAR -->
+  <div class="totals-grid">
+    <div class="total-card">
+      <div class="total-label">Parts Cost</div>
+      <div class="total-value" id="t-partsCost">$0.00</div>
+    </div>
+    <div class="total-card">
+      <div class="total-label">Parts Sell</div>
+      <div class="total-value blue" id="t-partsSell">$0.00</div>
+    </div>
+    <div class="total-card">
+      <div class="total-label">Labour Cost</div>
+      <div class="total-value" id="t-labourCost">$0.00</div>
+    </div>
+    <div class="total-card">
+      <div class="total-label">Labour Charge</div>
+      <div class="total-value blue" id="t-labourCharge">$0.00</div>
+    </div>
+    <div class="total-card hi">
+      <div class="total-label">Grand Total (inc GST)</div>
+      <div class="total-value orange" id="t-totalEx">$0.00</div>
+    </div>
+    <div class="total-card">
+      <div class="total-label">Gross Profit $</div>
+      <div class="total-value green" id="t-gp">$0.00</div>
+    </div>
+    <div class="total-card">
+      <div class="total-label">GP Margin %</div>
+      <div class="total-value green" id="t-gpPct">0.0%</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('stages',this)">Stages</button>
+    <button class="tab-btn" onclick="switchTab('generalLabour',this)">General Labour</button>
+    <button class="tab-btn" onclick="switchTab('rates',this)">Default Rates</button>
+    <button class="tab-btn" onclick="switchTab('backcost',this)">Back-Costing</button>
+  </div>
+
+  <!-- STAGES TAB -->
+  <div id="tab-stages" class="tab-content active">
+    <div id="stagesContainer"></div>
+    <button class="btn btn-primary" onclick="addStage()" style="margin-top:4px">+ Add Stage</button>
+  </div>
+
+  <!-- GENERAL LABOUR TAB -->
+  <div id="tab-generalLabour" class="tab-content">
+    <div class="stage-card">
+      <div class="stage-header" style="border-bottom-color:var(--border)">
+        <span style="font-size:15px;font-weight:600">General Labour</span>
+        <span style="font-size:11px;color:var(--muted)">Not tied to a specific stage — e.g. site supervision, travel, general attendances</span>
+      </div>
+      <div class="stage-body">
+        <div class="subsection-title">
+          <span>Labour</span>
+          <button class="btn btn-primary btn-sm" onclick="addGeneralLabour()">+ Add Item</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:26px">#</th>
+                <th style="width:30%">Description</th>
+                <th style="width:18%">Grade</th>
+                <th class="r" style="width:8%">Hours</th>
+                <th class="r" style="width:12%">Cost Rate ($/hr)</th>
+                <th class="r" style="width:12%">Total Cost</th>
+                <th class="r" style="width:12%">Charge-Out ($/hr)</th>
+                <th class="r" style="width:12%">Charge Total</th>
+                <th style="width:32px"></th>
+              </tr>
+            </thead>
+            <tbody id="generalLabourBody"></tbody>
+          </table>
+        </div>
+        <div class="add-row-area">
+          <button class="btn btn-ghost btn-sm" onclick="addGeneralLabour()">+ Add row</button>
+        </div>
+      </div>
+      <div class="stage-subtotal-bar">
+        <div class="stage-subtotal-item"><span class="stage-subtotal-label">Total Cost</span><span class="stage-subtotal-value" id="gl-cost">$0.00</span></div>
+        <div class="stage-subtotal-item"><span class="stage-subtotal-label">Total Charge</span><span class="stage-subtotal-value" style="color:var(--blue)" id="gl-charge">$0.00</span></div>
+        <div class="stage-subtotal-item"><span class="stage-subtotal-label">GP $</span><span class="stage-subtotal-value" style="color:var(--green)" id="gl-gp">$0.00</span></div>
+        <div class="stage-subtotal-item"><span class="stage-subtotal-label">Total Hours</span><span class="stage-subtotal-value" id="gl-hours">0.0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEFAULT RATES TAB -->
+  <div id="tab-rates" class="tab-content">
+    <div class="stage-card">
+      <div class="stage-header" style="border-bottom-color:var(--border)">
+        <span style="font-size:15px;font-weight:600">Default Labour Rates</span>
+        <span style="font-size:11px;color:var(--muted)">Select a grade on any labour row to auto-fill cost &amp; charge-out</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="rates-table">
+          <thead>
+            <tr>
+              <th>Grade</th>
+              <th class="r">Cost Rate ($/hr)</th>
+              <th class="r">Charge-Out ($/hr)</th>
+              <th class="r">Margin %</th>
+            </tr>
+          </thead>
+          <tbody id="ratesTableBody">
+            <tr><td style="font-weight:500">Supervisor</td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rSupervisorCost" value="100" oninput="saveDefaults();updateRateMargin('Supervisor')"></td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rSupervisorCharge" value="220" oninput="saveDefaults();updateRateMargin('Supervisor')"></td>
+              <td class="r" id="mSupervisor" style="font-family:var(--mono);color:var(--green)">—</td></tr>
+            <tr><td style="font-weight:500">Tradesman</td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rTradesmanCost" value="85" oninput="saveDefaults();updateRateMargin('Tradesman')"></td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rTradesmanCharge" value="195" oninput="saveDefaults();updateRateMargin('Tradesman')"></td>
+              <td class="r" id="mTradesman" style="font-family:var(--mono);color:var(--green)">—</td></tr>
+            <tr><td style="font-weight:500">4th Yr Apprentice</td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rApp4Cost" value="38" oninput="saveDefaults();updateRateMargin('App4')"></td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rApp4Charge" value="85" oninput="saveDefaults();updateRateMargin('App4')"></td>
+              <td class="r" id="mApp4" style="font-family:var(--mono);color:var(--green)">—</td></tr>
+            <tr><td style="font-weight:500">3rd Yr Apprentice</td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rApp3Cost" value="33" oninput="saveDefaults();updateRateMargin('App3')"></td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rApp3Charge" value="72" oninput="saveDefaults();updateRateMargin('App3')"></td>
+              <td class="r" id="mApp3" style="font-family:var(--mono);color:var(--green)">—</td></tr>
+            <tr><td style="font-weight:500">2nd Yr Apprentice</td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rApp2Cost" value="28" oninput="saveDefaults();updateRateMargin('App2')"></td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rApp2Charge" value="57" oninput="saveDefaults();updateRateMargin('App2')"></td>
+              <td class="r" id="mApp2" style="font-family:var(--mono);color:var(--green)">—</td></tr>
+            <tr><td style="font-weight:500">1st Yr Apprentice</td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rApp1Cost" value="22" oninput="saveDefaults();updateRateMargin('App1')"></td>
+              <td class="r"><input class="td-input r" type="number" step="any" min="0" id="rApp1Charge" value="45" oninput="saveDefaults();updateRateMargin('App1')"></td>
+              <td class="r" id="mApp1" style="font-family:var(--mono);color:var(--green)">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:14px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div class="field-group" style="max-width:200px">
+          <label>Default Parts Markup %</label>
+          <input type="number" id="dMarkup" value="100" step="any" oninput="saveDefaults()">
+        </div>
+        <span style="font-size:11px;color:var(--muted)">Enter your actual rates — cost rates are for back-costing only and won't appear on client-facing exports.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BACK COSTING TAB -->
+  <div id="tab-backcost" class="tab-content">
+    <div id="bcStagesContainer"></div>
+    <div class="section-card" style="grid-column:1/-1;margin-top:4px">
+      <div class="stage-card">
+        <div class="stage-header" style="border-bottom-color:var(--border)">
+          <span style="font-size:15px;font-weight:600">Overall Job Profitability</span>
+        </div>
+        <div class="stage-body">
+          <div class="bc-grid">
+            <div>
+              <div class="bc-row"><span class="bc-key">Total Job Cost (inc GST)</span><span class="bc-val" id="bc-totCost">$0.00</span></div>
+              <div class="bc-row"><span class="bc-key">Total Job Cost (ex GST)</span><span class="bc-val" id="bc-totCostEx" style="color:var(--sub)">$0.00</span></div>
+              <div class="bc-row"><span class="bc-key">Total Revenue (inc GST)</span><span class="bc-val" id="bc-totRev">$0.00</span></div>
+              <div class="bc-row"><span class="bc-key">Gross Profit $</span><span class="bc-val" id="bc-totGP">$0.00</span></div>
+              <div class="bc-row"><span class="bc-key">GP Margin %</span><span class="bc-val" id="bc-totGPpct">0.0%</span></div>
+              <div class="bc-row"><span class="bc-key">Markup on Cost %</span><span class="bc-val yellow" id="bc-mkup">0.0%</span></div>
+            </div>
+            <div>
+              <div class="margin-bar-wrap">
+                <div class="bar-labels"><span>GP Margin</span><span id="bc-barLabel">0%</span></div>
+                <div class="margin-bar"><div class="margin-fill" id="bc-bar" style="width:0%"></div></div>
+                <div class="bc-hint">Target: 40%+ on parts · 55%+ on labour</div>
+              </div>
+              <div style="margin-top:18px">
+                <div class="bc-row"><span class="bc-key">Total Hours (all stages + general)</span><span class="bc-val" id="bc-hours">0.0 hrs</span></div>
+                <div class="bc-row"><span class="bc-key">Revenue per Hour</span><span class="bc-val" id="bc-revPH">$0.00</span></div>
+                <div class="bc-row"><span class="bc-key">Cost per Hour</span><span class="bc-val" id="bc-costPH">$0.00</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-body -->
+
+<!-- LOAD MODAL -->
+<div class="modal-bg" id="loadModal">
+  <div class="modal">
+    <div class="modal-title">Saved Quotes</div>
+    <div id="savedList"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeLoadModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────
+// Each stage: { id, name, parts:[...], labour:[...] }
+let stages = [];
+let generalLabour = [];
+let isDirty = false, exportOpen = false;
+let stageCounter = 0;
+
+const SUPPLIERS = ['CNW','ACD','Airspares','Beacon','MM','Turner Engineering','Actrol','Advantage Air','Polyaire','Gamatos','Other'];
+
+const GRADES = {
+  Supervisor: { costId:'rSupervisorCost', chargeId:'rSupervisorCharge', label:'Supervisor' },
+  Tradesman:  { costId:'rTradesmanCost',  chargeId:'rTradesmanCharge',  label:'Tradesman' },
+  App4:       { costId:'rApp4Cost',        chargeId:'rApp4Charge',       label:'4th Yr Apprentice' },
+  App3:       { costId:'rApp3Cost',        chargeId:'rApp3Charge',       label:'3rd Yr Apprentice' },
+  App2:       { costId:'rApp2Cost',        chargeId:'rApp2Charge',       label:'2nd Yr Apprentice' },
+  App1:       { costId:'rApp1Cost',        chargeId:'rApp1Charge',       label:'1st Yr Apprentice' },
+};
+
+// ── INIT ───────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('quoteDate').value = new Date().toISOString().split('T')[0];
+  const savedBizName = localStorage.getItem('biz_name');
+  if (savedBizName) {
+    document.getElementById('businessName').value = savedBizName;
+    updateLogo();
+  } else {
+    // first-ever load — keep the pre-filled ARO defaults as-is
+    localStorage.setItem('biz_name', document.getElementById('businessName').value);
+  }
+  loadDefaults();
+  Object.keys(GRADES).forEach(k => updateRateMargin(k));
+  addStage('Stage 1');
+  addGeneralLabour();
+  recalcAll();
+  document.addEventListener('click', e => {
+    if (exportOpen && !e.target.closest('#exportMenu') && !e.target.closest('[onclick*="toggleExportMenu"]'))
+      closeExportMenu();
+  });
+});
+
+function markDirty() { isDirty = true; }
+
+function updateLogo() {
+  const name = document.getElementById('businessName').value || '';
+  const words = name.split(' ').filter(w => /[a-zA-Z0-9]/.test(w[0]||''));
+  const initials = words.map(w=>w[0]).join('').substring(0,3).toUpperCase() || '?';
+  document.getElementById('logoMark').textContent = initials;
+  localStorage.setItem('biz_name', name);
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────
+function switchTab(n, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  el.classList.add('active');
+  if (n === 'backcost') renderBackCosting();
+}
+
+function updateBadge() {
+  const v = document.getElementById('tradeType').value;
+  const b = document.getElementById('tradeBadge');
+  const m = {electrical:['badge-elec','Electrical'],aircon:['badge-ac','Air Conditioning'],solar:['badge-solar','Solar']};
+  b.className = 'badge '+m[v][0]; b.textContent = m[v][1];
+}
+
+// ── DEFAULT RATES ──────────────────────────────────────────────────────
+function getRatesByGrade(gradeKey) {
+  const g = GRADES[gradeKey];
+  if (!g) return { costRate: fv('rTradesmanCost'), chargeRate: fv('rTradesmanCharge') };
+  return { costRate: fv(g.costId), chargeRate: fv(g.chargeId) };
+}
+
+function updateRateMargin(key) {
+  const g = GRADES[key];
+  if (!g) return;
+  const cost = fv(g.costId), charge = fv(g.chargeId);
+  const margin = charge > 0 ? ((charge - cost) / charge * 100).toFixed(1) + '%' : '—';
+  const el = document.getElementById('m' + key);
+  if (el) { el.textContent = margin; el.style.color = (charge > cost) ? 'var(--green)' : 'var(--red)'; }
+}
+
+function saveDefaults() {
+  const d = { mk: fv('dMarkup') };
+  Object.keys(GRADES).forEach(k => {
+    const g = GRADES[k];
+    d[g.costId] = fv(g.costId);
+    d[g.chargeId] = fv(g.chargeId);
+  });
+  localStorage.setItem('aro_defaults', JSON.stringify(d));
+  Object.keys(GRADES).forEach(k => updateRateMargin(k));
+  recalcAll();
+}
+
+function loadDefaults() {
+  const d = JSON.parse(localStorage.getItem('aro_defaults')||'{}');
+  if (d.mk) sv('dMarkup', d.mk);
+  Object.keys(GRADES).forEach(k => {
+    const g = GRADES[k];
+    if (d[g.costId])   sv(g.costId,   d[g.costId]);
+    if (d[g.chargeId]) sv(g.chargeId, d[g.chargeId]);
+    updateRateMargin(k);
+  });
+}
+
+// ── STAGES ─────────────────────────────────────────────────────────────
+function addStage(name) {
+  stageCounter++;
+  const stage = {
+    id: 'stage_' + Date.now() + '_' + stageCounter,
+    name: name || ('Stage ' + (stages.length + 1)),
+    parts: [],
+    labour: [],
+    globalSupplier: ''
+  };
+  stages.push(stage);
+  renderStages();
+  markDirty();
+}
+
+function removeStage(stageId) {
+  if (stages.length <= 1) { toast('You need at least one stage','error'); return; }
+  if (!confirm('Remove this stage and all its items?')) return;
+  stages = stages.filter(s => s.id !== stageId);
+  renderStages();
+  markDirty();
+}
+
+function duplicateStage(stageId) {
+  const orig = stages.find(s => s.id === stageId);
+  if (!orig) return;
+  stageCounter++;
+  const copy = JSON.parse(JSON.stringify(orig));
+  copy.id = 'stage_' + Date.now() + '_' + stageCounter;
+  copy.name = orig.name + ' (copy)';
+  const idx = stages.indexOf(orig);
+  stages.splice(idx + 1, 0, copy);
+  renderStages();
+  markDirty();
+}
+
+function renameStage(stageId, name) {
+  const s = stages.find(s => s.id === stageId);
+  if (s) { s.name = name; markDirty(); }
+}
+
+function renderStages() {
+  const container = document.getElementById('stagesContainer');
+  container.innerHTML = '';
+  stages.forEach(stage => {
+    container.appendChild(buildStageEl(stage));
+  });
+  stages.forEach(stage => {
+    renderStageParts(stage.id);
+    renderStageLabour(stage.id);
+  });
+  recalcAll();
+}
+
+function buildStageEl(stage) {
+  const div = document.createElement('div');
+  div.className = 'stage-card';
+  div.id = 'stagecard_' + stage.id;
+  const supplierOptionsHtml = ['', ...SUPPLIERS].map(s =>
+    `<option value="${s}" ${stage.globalSupplier===s?'selected':''}>${s||'— Select supplier —'}</option>`).join('');
+  div.innerHTML = `
+    <div class="stage-header">
+      <input class="stage-name-input" value="${esc(stage.name)}" oninput="renameStage('${stage.id}',this.value)">
+      <div class="stage-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="duplicateStage('${stage.id}')">⧉ Duplicate</button>
+        <button class="btn btn-danger btn-sm" onclick="removeStage('${stage.id}')">✕ Remove Stage</button>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="subsection-title">
+        <span>Parts &amp; Materials</span>
+        <button class="btn btn-primary btn-sm" onclick="addStagePart('${stage.id}')">+ Add Item</button>
+      </div>
+      <div class="supplier-bar">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)">Supplier</span>
+        <select onchange="applyStageSupplier('${stage.id}',this.value)">
+          ${supplierOptionsHtml}
+          <option value="__other__">Other / Mixed</option>
+        </select>
+        <span style="font-size:11px;color:var(--muted)">New rows use this supplier. Rows can still be changed individually.</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26px">#</th>
+              <th style="width:34%">Description</th>
+              <th style="width:14%">Supplier</th>
+              <th class="r" style="width:8%">Qty</th>
+              <th class="r" style="width:11%">Unit Cost</th>
+              <th class="r" style="width:10%">Total Cost</th>
+              <th class="r" style="width:9%">Markup %</th>
+              <th class="r" style="width:12%">Sell Price</th>
+              <th style="width:32px"></th>
+            </tr>
+          </thead>
+          <tbody id="partsBody_${stage.id}"></tbody>
+        </table>
+      </div>
+      <div class="add-row-area">
+        <button class="btn btn-ghost btn-sm" onclick="addStagePart('${stage.id}')">+ Add row</button>
+      </div>
+
+      <div class="subsection-title" style="margin-top:18px">
+        <span>Labour</span>
+        <button class="btn btn-primary btn-sm" onclick="addStageLabour('${stage.id}')">+ Add Item</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26px">#</th>
+              <th style="width:28%">Description</th>
+              <th style="width:18%">Grade</th>
+              <th class="r" style="width:8%">Hours</th>
+              <th class="r" style="width:11%">Cost Rate ($/hr)</th>
+              <th class="r" style="width:11%">Total Cost</th>
+              <th class="r" style="width:11%">Charge-Out ($/hr)</th>
+              <th class="r" style="width:11%">Charge Total</th>
+              <th style="width:32px"></th>
+            </tr>
+          </thead>
+          <tbody id="labourBody_${stage.id}"></tbody>
+        </table>
+      </div>
+      <div class="add-row-area">
+        <button class="btn btn-ghost btn-sm" onclick="addStageLabour('${stage.id}')">+ Add row</button>
+      </div>
+    </div>
+    <div class="stage-subtotal-bar">
+      <div class="stage-subtotal-item"><span class="stage-subtotal-label">Parts Cost</span><span class="stage-subtotal-value" id="sub_${stage.id}_partsCost">$0.00</span></div>
+      <div class="stage-subtotal-item"><span class="stage-subtotal-label">Parts Sell</span><span class="stage-subtotal-value" style="color:var(--blue)" id="sub_${stage.id}_partsSell">$0.00</span></div>
+      <div class="stage-subtotal-item"><span class="stage-subtotal-label">Labour Cost</span><span class="stage-subtotal-value" id="sub_${stage.id}_labourCost">$0.00</span></div>
+      <div class="stage-subtotal-item"><span class="stage-subtotal-label">Labour Charge</span><span class="stage-subtotal-value" style="color:var(--blue)" id="sub_${stage.id}_labourCharge">$0.00</span></div>
+      <div class="stage-subtotal-item"><span class="stage-subtotal-label">Stage Total (inc GST)</span><span class="stage-subtotal-value" style="color:var(--orange);font-size:17px" id="sub_${stage.id}_total">$0.00</span></div>
+      <div class="stage-subtotal-item"><span class="stage-subtotal-label">Stage GP %</span><span class="stage-subtotal-value" style="color:var(--green)" id="sub_${stage.id}_gpPct">0.0%</span></div>
+    </div>
+  `;
+  return div;
+}
+
+// ── STAGE PARTS ────────────────────────────────────────────────────────
+function getStage(stageId) { return stages.find(s => s.id === stageId); }
+
+function addStagePart(stageId, d={}) {
+  const stage = getStage(stageId);
+  if (!stage) return;
+  const inheritedSupplier = (stage.globalSupplier && stage.globalSupplier !== '__other__') ? stage.globalSupplier : '';
+  stage.parts.push({
+    desc: d.desc||'', supplier: d.supplier!==undefined?d.supplier:inheritedSupplier,
+    supplierLocked: !!d.supplier,
+    qty: d.qty||1, unitCost: d.unitCost||0, markup: d.markup!==undefined?d.markup:fv('dMarkup')
+  });
+  renderStageParts(stageId);
+  markDirty();
+}
+
+function removeStagePart(stageId, i) {
+  const stage = getStage(stageId);
+  stage.parts.splice(i,1);
+  renderStageParts(stageId);
+  markDirty();
+}
+
+function applyStageSupplier(stageId, val) {
+  const stage = getStage(stageId);
+  stage.globalSupplier = val;
+  stage.parts.forEach(p => { if (!p.supplierLocked) p.supplier = (val === '__other__' ? '' : val); });
+  renderStageParts(stageId);
+  markDirty();
+}
+
+function lockStageSupplier(stageId, i, val) {
+  const stage = getStage(stageId);
+  stage.parts[i].supplier = val;
+  stage.parts[i].supplierLocked = true;
+  recalcAll();
+  markDirty();
+}
+
+function renderStageParts(stageId) {
+  const stage = getStage(stageId);
+  const tb = document.getElementById('partsBody_' + stageId);
+  if (!tb) return;
+  tb.innerHTML = '';
+  stage.parts.forEach((p,i) => {
+    const tc = p.unitCost * p.qty;
+    const sell = tc * (1 + p.markup/100);
+    const selOpts = ['', ...SUPPLIERS].map(s =>
+      `<option value="${s}" ${p.supplier===s?'selected':''}>${s||'— none —'}</option>`).join('');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="row-num">${i+1}</td>
+      <td><input class="td-input" placeholder="Description" value="${esc(p.desc)}" oninput="stages.find(s=>s.id==='${stageId}').parts[${i}].desc=this.value;markDirty()"></td>
+      <td><select class="td-input" style="font-size:12px" onchange="lockStageSupplier('${stageId}',${i},this.value)">${selOpts}</select></td>
+      <td><input class="td-input r" type="number" step="any" min="0" value="${p.qty}" onchange="updateStagePart('${stageId}',${i},'qty',this.value)" oninput="updateStagePart('${stageId}',${i},'qty',this.value)"></td>
+      <td><input class="td-input r" type="number" step="any" min="0" placeholder="0.00" value="${p.unitCost||''}" onchange="updateStagePart('${stageId}',${i},'unitCost',this.value)" oninput="updateStagePart('${stageId}',${i},'unitCost',this.value)"></td>
+      <td class="r">${fmt(tc)}</td>
+      <td><input class="td-input r" type="number" step="any" min="0" value="${p.markup}" onchange="updateStagePart('${stageId}',${i},'markup',this.value)" oninput="updateStagePart('${stageId}',${i},'markup',this.value)"></td>
+      <td class="num-blue">${fmt(sell)}</td>
+      <td><button class="btn btn-danger btn-icon btn-sm" onclick="removeStagePart('${stageId}',${i})">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+  recalcAll();
+}
+
+function updateStagePart(stageId, i, field, val) {
+  const stage = getStage(stageId);
+  stage.parts[i][field] = parseFloat(val) || 0;
+  recalcStageInline(stageId);
+  markDirty();
+}
+
+// ── STAGE LABOUR ───────────────────────────────────────────────────────
+function addStageLabour(stageId, d={}) {
+  const stage = getStage(stageId);
+  if (!stage) return;
+  const gradeKey = d.gradeKey || 'Tradesman';
+  const rates = getRatesByGrade(gradeKey);
+  stage.labour.push({
+    desc: d.desc||'', gradeKey, hours: d.hours||0,
+    costRate: d.costRate!==undefined?d.costRate:rates.costRate,
+    chargeRate: d.chargeRate!==undefined?d.chargeRate:rates.chargeRate,
+  });
+  renderStageLabour(stageId);
+  markDirty();
+}
+
+function removeStageLabour(stageId, i) {
+  const stage = getStage(stageId);
+  stage.labour.splice(i,1);
+  renderStageLabour(stageId);
+  markDirty();
+}
+
+function applyStageLabourGrade(stageId, i, gradeKey) {
+  const stage = getStage(stageId);
+  const rates = getRatesByGrade(gradeKey);
+  stage.labour[i].gradeKey = gradeKey;
+  stage.labour[i].costRate = rates.costRate;
+  stage.labour[i].chargeRate = rates.chargeRate;
+  renderStageLabour(stageId);
+  markDirty();
+}
+
+function renderStageLabour(stageId) {
+  const stage = getStage(stageId);
+  const tb = document.getElementById('labourBody_' + stageId);
+  if (!tb) return;
+  tb.innerHTML = '';
+  stage.labour.forEach((l,i) => {
+    const tc = l.hours * l.costRate;
+    const ch = l.hours * l.chargeRate;
+    const selOpts = Object.entries(GRADES).map(([k,g]) =>
+      `<option value="${k}" ${l.gradeKey===k?'selected':''}>${g.label}</option>`).join('');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="row-num">${i+1}</td>
+      <td><input class="td-input" placeholder="Description" value="${esc(l.desc)}" oninput="stages.find(s=>s.id==='${stageId}').labour[${i}].desc=this.value;markDirty()"></td>
+      <td><select class="td-input" style="font-size:12px" onchange="applyStageLabourGrade('${stageId}',${i},this.value)">${selOpts}</select></td>
+      <td><input class="td-input r" type="number" step="any" min="0" placeholder="0" value="${l.hours||''}" onchange="updateStageLabour('${stageId}',${i},'hours',this.value)" oninput="updateStageLabour('${stageId}',${i},'hours',this.value)"></td>
+      <td><input class="td-input r" type="number" step="any" min="0" value="${l.costRate||''}" onchange="updateStageLabour('${stageId}',${i},'costRate',this.value)" oninput="updateStageLabour('${stageId}',${i},'costRate',this.value)"></td>
+      <td class="r">${fmt(tc)}</td>
+      <td><input class="td-input r" type="number" step="any" min="0" value="${l.chargeRate||''}" onchange="updateStageLabour('${stageId}',${i},'chargeRate',this.value)" oninput="updateStageLabour('${stageId}',${i},'chargeRate',this.value)"></td>
+      <td class="num-blue">${fmt(ch)}</td>
+      <td><button class="btn btn-danger btn-icon btn-sm" onclick="removeStageLabour('${stageId}',${i})">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+  recalcAll();
+}
+
+function updateStageLabour(stageId, i, field, val) {
+  const stage = getStage(stageId);
+  stage.labour[i][field] = parseFloat(val) || 0;
+  recalcStageInline(stageId);
+  markDirty();
+}
+
+// ── GENERAL LABOUR ─────────────────────────────────────────────────────
+function addGeneralLabour(d={}) {
+  const gradeKey = d.gradeKey || 'Tradesman';
+  const rates = getRatesByGrade(gradeKey);
+  generalLabour.push({
+    desc: d.desc||'', gradeKey, hours: d.hours||0,
+    costRate: d.costRate!==undefined?d.costRate:rates.costRate,
+    chargeRate: d.chargeRate!==undefined?d.chargeRate:rates.chargeRate,
+  });
+  renderGeneralLabour();
+  markDirty();
+}
+
+function removeGeneralLabour(i) {
+  generalLabour.splice(i,1);
+  renderGeneralLabour();
+  markDirty();
+}
+
+function applyGeneralLabourGrade(i, gradeKey) {
+  const rates = getRatesByGrade(gradeKey);
+  generalLabour[i].gradeKey = gradeKey;
+  generalLabour[i].costRate = rates.costRate;
+  generalLabour[i].chargeRate = rates.chargeRate;
+  renderGeneralLabour();
+  markDirty();
+}
+
+function renderGeneralLabour() {
+  const tb = document.getElementById('generalLabourBody');
+  if (!tb) return;
+  tb.innerHTML = '';
+  generalLabour.forEach((l,i) => {
+    const tc = l.hours * l.costRate;
+    const ch = l.hours * l.chargeRate;
+    const selOpts = Object.entries(GRADES).map(([k,g]) =>
+      `<option value="${k}" ${l.gradeKey===k?'selected':''}>${g.label}</option>`).join('');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="row-num">${i+1}</td>
+      <td><input class="td-input" placeholder="Description" value="${esc(l.desc)}" oninput="generalLabour[${i}].desc=this.value;markDirty()"></td>
+      <td><select class="td-input" style="font-size:12px" onchange="applyGeneralLabourGrade(${i},this.value)">${selOpts}</select></td>
+      <td><input class="td-input r" type="number" step="any" min="0" placeholder="0" value="${l.hours||''}" onchange="updateGeneralLabour(${i},'hours',this.value)" oninput="updateGeneralLabour(${i},'hours',this.value)"></td>
+      <td><input class="td-input r" type="number" step="any" min="0" value="${l.costRate||''}" onchange="updateGeneralLabour(${i},'costRate',this.value)" oninput="updateGeneralLabour(${i},'costRate',this.value)"></td>
+      <td class="r">${fmt(tc)}</td>
+      <td><input class="td-input r" type="number" step="any" min="0" value="${l.chargeRate||''}" onchange="updateGeneralLabour(${i},'chargeRate',this.value)" oninput="updateGeneralLabour(${i},'chargeRate',this.value)"></td>
+      <td class="num-blue">${fmt(ch)}</td>
+      <td><button class="btn btn-danger btn-icon btn-sm" onclick="removeGeneralLabour(${i})">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+  recalcAll();
+}
+
+function updateGeneralLabour(i, field, val) {
+  generalLabour[i][field] = parseFloat(val) || 0;
+  recalcAll();
+  markDirty();
+}
+
+// ── CALCULATIONS ───────────────────────────────────────────────────────
+function calcStageTotals(stage) {
+  let pCost=0, pSell=0;
+  stage.parts.forEach(p => { const tc=p.unitCost*p.qty; pCost+=tc; pSell+=tc*(1+p.markup/100); });
+  let lCost=0, lCharge=0, hrs=0;
+  stage.labour.forEach(l => { lCost+=l.hours*l.costRate; lCharge+=l.hours*l.chargeRate; hrs+=l.hours; });
+  const totCost = pCost+lCost, totSell = pSell+lCharge;
+  const totCostEx = totCost/1.1;
+  const gp = totSell - totCostEx;
+  const gpPct = totSell>0 ? (gp/totSell)*100 : 0;
+  return { pCost, pSell, lCost, lCharge, hrs, totCost, totSell, totCostEx, gp, gpPct };
+}
+
+function calcGeneralLabourTotals() {
+  let lCost=0, lCharge=0, hrs=0;
+  generalLabour.forEach(l => { lCost+=l.hours*l.costRate; lCharge+=l.hours*l.chargeRate; hrs+=l.hours; });
+  return { lCost, lCharge, hrs };
+}
+
+function calcGrandTotals() {
+  let pCost=0, pSell=0, lCost=0, lCharge=0, hrs=0;
+  stages.forEach(stage => {
+    const t = calcStageTotals(stage);
+    pCost += t.pCost; pSell += t.pSell; lCost += t.lCost; lCharge += t.lCharge; hrs += t.hrs;
+  });
+  const gl = calcGeneralLabourTotals();
+  lCost += gl.lCost; lCharge += gl.lCharge; hrs += gl.hrs;
+
+  const totCost = pCost+lCost;
+  const totCostExGST = totCost/1.1;
+  const totRev = pSell+lCharge;
+  const gp = totRev - totCostExGST;
+  const gpPct = totRev>0 ? (gp/totRev)*100 : 0;
+  const mkup = totCostExGST>0 ? ((totRev-totCostExGST)/totCostExGST)*100 : 0;
+  return { pCost, pSell, lCost, lCharge, hrs, totCost, totCostExGST, totRev, gp, gpPct, mkup };
+}
+
+// Lightweight inline update for a single stage subtotal bar without full re-render
+function recalcStageInline(stageId) {
+  const stage = getStage(stageId);
+  const t = calcStageTotals(stage);
+  setText('sub_'+stageId+'_partsCost', fmt(t.pCost));
+  setText('sub_'+stageId+'_partsSell', fmt(t.pSell));
+  setText('sub_'+stageId+'_labourCost', fmt(t.lCost));
+  setText('sub_'+stageId+'_labourCharge', fmt(t.lCharge));
+  setText('sub_'+stageId+'_total', fmt(t.totSell));
+  setText('sub_'+stageId+'_gpPct', t.gpPct.toFixed(1)+'%');
+
+  // update row total cells in place
+  const partsRows = document.getElementById('partsBody_'+stageId)?.rows;
+  if (partsRows) stage.parts.forEach((p,i) => {
+    if (partsRows[i]) {
+      const tc = p.unitCost*p.qty;
+      partsRows[i].cells[5].textContent = fmt(tc);
+      partsRows[i].cells[7].textContent = fmt(tc*(1+p.markup/100));
+    }
+  });
+  const labourRows = document.getElementById('labourBody_'+stageId)?.rows;
+  if (labourRows) stage.labour.forEach((l,i) => {
+    if (labourRows[i]) {
+      labourRows[i].cells[5].textContent = fmt(l.hours*l.costRate);
+      labourRows[i].cells[7].textContent = fmt(l.hours*l.chargeRate);
+    }
+  });
+
+  recalcGrandBarOnly();
+}
+
+function recalcGrandBarOnly() {
+  const T = calcGrandTotals();
+  setText('t-partsCost', fmt(T.pCost));
+  setText('t-partsSell', fmt(T.pSell));
+  setText('t-labourCost', fmt(T.lCost));
+  setText('t-labourCharge', fmt(T.lCharge));
+  setText('t-totalEx', fmt(T.totRev));
+  colorVal('t-gp', fmt(T.gp), T.gp);
+  colorVal('t-gpPct', T.gpPct.toFixed(1)+'%', T.gp, 'pct');
+
+  // General labour subtotal bar
+  const gl = calcGeneralLabourTotals();
+  setText('gl-cost', fmt(gl.lCost));
+  setText('gl-charge', fmt(gl.lCharge));
+  const glGP = gl.lCharge - (gl.lCost/1.1);
+  colorValEl(document.getElementById('gl-gp'), fmt(glGP), glGP);
+  setText('gl-hours', gl.hrs.toFixed(1));
+
+  // general labour row totals in place
+  const glRows = document.getElementById('generalLabourBody')?.rows;
+  if (glRows) generalLabour.forEach((l,i) => {
+    if (glRows[i]) {
+      glRows[i].cells[5].textContent = fmt(l.hours*l.costRate);
+      glRows[i].cells[7].textContent = fmt(l.hours*l.chargeRate);
+    }
+  });
+}
+
+function recalcAll() {
+  // refresh every stage subtotal bar
+  stages.forEach(stage => {
+    const t = calcStageTotals(stage);
+    setText('sub_'+stage.id+'_partsCost', fmt(t.pCost));
+    setText('sub_'+stage.id+'_partsSell', fmt(t.pSell));
+    setText('sub_'+stage.id+'_labourCost', fmt(t.lCost));
+    setText('sub_'+stage.id+'_labourCharge', fmt(t.lCharge));
+    setText('sub_'+stage.id+'_total', fmt(t.totSell));
+    setText('sub_'+stage.id+'_gpPct', t.gpPct.toFixed(1)+'%');
+  });
+  recalcGrandBarOnly();
+}
+
+// ── BACK COSTING TAB ───────────────────────────────────────────────────
+function renderBackCosting() {
+  const container = document.getElementById('bcStagesContainer');
+  container.innerHTML = '';
+  stages.forEach(stage => {
+    const t = calcStageTotals(stage);
+    const pGP = t.pSell - (t.pCost/1.1), pGPpct = t.pSell>0?(pGP/t.pSell)*100:0;
+    const lGP = t.lCharge - (t.lCost/1.1), lGPpct = t.lCharge>0?(lGP/t.lCharge)*100:0;
+    const div = document.createElement('div');
+    div.className = 'bc-stage-card';
+    div.innerHTML = `
+      <div class="bc-stage-header">${esc(stage.name)}</div>
+      <div style="padding:14px 16px">
+        <div class="bc-grid">
+          <div>
+            <div class="bc-row"><span class="bc-key">Parts Cost (inc/ex GST)</span><span class="bc-val">${fmt(t.pCost)} / ${fmt(t.pCost/1.1)}</span></div>
+            <div class="bc-row"><span class="bc-key">Parts Sell</span><span class="bc-val">${fmt(t.pSell)}</span></div>
+            <div class="bc-row"><span class="bc-key">Parts GP $ / %</span><span class="bc-val ${pGP>=0?'green':'red'}">${fmt(pGP)} / ${pGPpct.toFixed(1)}%</span></div>
+          </div>
+          <div>
+            <div class="bc-row"><span class="bc-key">Labour Cost (inc/ex GST)</span><span class="bc-val">${fmt(t.lCost)} / ${fmt(t.lCost/1.1)}</span></div>
+            <div class="bc-row"><span class="bc-key">Labour Charge</span><span class="bc-val">${fmt(t.lCharge)}</span></div>
+            <div class="bc-row"><span class="bc-key">Labour GP $ / %</span><span class="bc-val ${lGP>=0?'green':'red'}">${fmt(lGP)} / ${lGPpct.toFixed(1)}%</span></div>
+          </div>
+        </div>
+        <div style="height:1px;background:var(--border);margin:8px 0"></div>
+        <div class="bc-row"><span class="bc-key" style="font-weight:600">Stage Total (inc GST)</span><span class="bc-val" style="font-weight:600">${fmt(t.totSell)}</span></div>
+        <div class="bc-row"><span class="bc-key" style="font-weight:600">Stage GP $ / %</span><span class="bc-val ${t.gp>=0?'green':'red'}" style="font-weight:600">${fmt(t.gp)} / ${t.gpPct.toFixed(1)}%</span></div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  // General labour card
+  const gl = calcGeneralLabourTotals();
+  const glGP = gl.lCharge - (gl.lCost/1.1);
+  const glGPpct = gl.lCharge>0?(glGP/gl.lCharge)*100:0;
+  const glDiv = document.createElement('div');
+  glDiv.className = 'bc-stage-card';
+  glDiv.innerHTML = `
+    <div class="bc-stage-header">General Labour</div>
+    <div style="padding:14px 16px">
+      <div class="bc-row"><span class="bc-key">Labour Cost (inc/ex GST)</span><span class="bc-val">${fmt(gl.lCost)} / ${fmt(gl.lCost/1.1)}</span></div>
+      <div class="bc-row"><span class="bc-key">Labour Charge</span><span class="bc-val">${fmt(gl.lCharge)}</span></div>
+      <div class="bc-row"><span class="bc-key">GP $ / %</span><span class="bc-val ${glGP>=0?'green':'red'}">${fmt(glGP)} / ${glGPpct.toFixed(1)}%</span></div>
+      <div class="bc-row"><span class="bc-key">Total Hours</span><span class="bc-val">${gl.hrs.toFixed(1)} hrs</span></div>
+    </div>
+  `;
+  container.appendChild(glDiv);
+
+  // Overall totals
+  const T = calcGrandTotals();
+  setText('bc-totCost', fmt(T.totCost));
+  setText('bc-totCostEx', fmt(T.totCostExGST));
+  setText('bc-totRev', fmt(T.totRev));
+  colorVal('bc-totGP', fmt(T.gp), T.gp);
+  colorVal('bc-totGPpct', T.gpPct.toFixed(1)+'%', T.gp, 'pct');
+  setText('bc-mkup', T.mkup.toFixed(1)+'%');
+  setText('bc-revPH', T.hrs>0?fmt(T.totRev/T.hrs):'—');
+  setText('bc-costPH', T.hrs>0?fmt(T.totCostExGST/T.hrs):'—');
+  const bw = Math.min(Math.max(T.gpPct,0),100);
+  const bar = document.getElementById('bc-bar');
+  bar.style.width = bw+'%';
+  bar.style.background = T.gpPct>=40?'var(--green)':T.gpPct>=20?'var(--yellow)':'var(--red)';
+  setText('bc-barLabel', T.gpPct.toFixed(1)+'%');
+}
+
+// ── SAVE / LOAD ────────────────────────────────────────────────────────
+function getQuoteData() {
+  return {
+    quoteNumber:gv('quoteNumber'), quoteDate:gv('quoteDate'),
+    tradeType:document.getElementById('tradeType').value,
+    clientName:gv('clientName'), siteAddress:gv('siteAddress'),
+    contactPhone:gv('contactPhone'), jobDescription:gv('jobDescription'),
+    stages: JSON.parse(JSON.stringify(stages)),
+    generalLabour: JSON.parse(JSON.stringify(generalLabour)),
+    savedAt:new Date().toISOString()
+  };
+}
+
+function saveQuote() {
+  const d=getQuoteData();
+  const key='quote_'+(d.quoteNumber||Date.now());
+  const keys=getSavedKeys();
+  if(!keys.includes(key)) keys.push(key);
+  localStorage.setItem('saved_keys',JSON.stringify(keys));
+  localStorage.setItem(key,JSON.stringify(d));
+  isDirty=false;
+  toast('Quote saved — '+(d.quoteNumber||'unnamed'),'success');
+}
+
+function getSavedKeys() {
+  try{return JSON.parse(localStorage.getItem('saved_keys')||'[]')}catch{return[]}
+}
+
+function openLoadModal() {
+  const keys=getSavedKeys();
+  const el=document.getElementById('savedList');
+  if(!keys.length){el.innerHTML='<div class="empty-state">No saved quotes yet.</div>';}
+  else {
+    el.innerHTML='';
+    [...keys].reverse().forEach(k=>{
+      try{
+        const q=JSON.parse(localStorage.getItem(k));
+        const d=document.createElement('div');
+        d.className='saved-item';
+        d.innerHTML=`<div>
+          <div class="saved-name">${q.quoteNumber||'Unnamed'} — ${q.clientName||'No client'}</div>
+          <div class="saved-meta">${q.tradeType||''} · ${q.siteAddress||''} · ${new Date(q.savedAt).toLocaleDateString('en-AU')}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-primary btn-sm" onclick="loadQuote('${k}')">Load</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteQuote('${k}',event)">Delete</button>
+        </div>`;
+        el.appendChild(d);
+      }catch{}
+    });
+  }
+  document.getElementById('loadModal').classList.add('open');
+}
+function closeLoadModal(){document.getElementById('loadModal').classList.remove('open')}
+
+function loadQuote(key) {
+  const q=JSON.parse(localStorage.getItem(key));
+  if(!q) return;
+  sv('quoteNumber',q.quoteNumber); sv('quoteDate',q.quoteDate);
+  document.getElementById('tradeType').value=q.tradeType||'electrical';
+  updateBadge();
+  sv('clientName',q.clientName); sv('siteAddress',q.siteAddress);
+  sv('contactPhone',q.contactPhone); sv('jobDescription',q.jobDescription);
+
+  // backwards compat: very old saves had flat parts/labour, no stages
+  if (q.stages && q.stages.length) {
+    stages = q.stages;
+  } else if (q.parts || q.labour) {
+    stages = [{
+      id: 'stage_' + Date.now(),
+      name: 'Stage 1',
+      parts: q.parts || [],
+      labour: (q.labour||[]).map(l => ({...l, gradeKey: l.gradeKey || 'Tradesman'})),
+      globalSupplier: ''
+    }];
+  } else {
+    stages = [{ id:'stage_'+Date.now(), name:'Stage 1', parts:[], labour:[], globalSupplier:'' }];
+  }
+  generalLabour = q.generalLabour || [];
+
+  renderStages();
+  renderGeneralLabour();
+  closeLoadModal(); isDirty=false;
+  toast('Quote loaded','success');
+}
+
+function deleteQuote(key,e) {
+  e.stopPropagation();
+  if(!confirm('Delete this saved quote?')) return;
+  localStorage.removeItem(key);
+  const keys=getSavedKeys().filter(k=>k!==key);
+  localStorage.setItem('saved_keys',JSON.stringify(keys));
+  openLoadModal(); toast('Deleted','success');
+}
+
+function newQuote() {
+  if(isDirty && !confirm('Unsaved changes will be lost. Continue?')) return;
+  ['quoteNumber','clientName','siteAddress','contactPhone','jobDescription'].forEach(id=>sv(id,''));
+  document.getElementById('quoteDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('tradeType').value='electrical'; updateBadge();
+  stages=[]; generalLabour=[];
+  addStage('Stage 1');
+  addGeneralLabour();
+  isDirty=false;
+}
+
+// ── EXPORT ─────────────────────────────────────────────────────────────
+function toggleExportMenu(){
+  exportOpen=!exportOpen;
+  document.getElementById('exportMenu').style.display=exportOpen?'block':'none';
+}
+function closeExportMenu(){
+  exportOpen=false;
+  document.getElementById('exportMenu').style.display='none';
+}
+
+// ── QUOTE FILE EXPORT / IMPORT (for re-loading old quotes) ─────────────
+function exportQuoteFile() {
+  const d = getQuoteData();
+  const fileData = {
+    _type: 'quoting-tool-export',
+    _version: 1,
+    exportedAt: new Date().toISOString(),
+    businessName: document.getElementById('businessName').value || '',
+    ...d
+  };
+  const blob = new Blob([JSON.stringify(fileData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `QuoteFile-${d.quoteNumber || 'draft'}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Quote file exported — keep this to re-import later','success');
+}
+
+function triggerImport() {
+  if (isDirty && !confirm('Unsaved changes will be lost. Continue with import?')) return;
+  document.getElementById('importFileInput').click();
+}
+
+function handleImportFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const q = JSON.parse(e.target.result);
+      if (q._type !== 'quoting-tool-export') {
+        if (!confirm('This file doesn\'t look like a quote export from this tool. Try to load it anyway?')) {
+          event.target.value = '';
+          return;
+        }
+      }
+      sv('quoteNumber', q.quoteNumber);
+      sv('quoteDate', q.quoteDate);
+      document.getElementById('tradeType').value = q.tradeType || 'electrical';
+      updateBadge();
+      sv('clientName', q.clientName);
+      sv('siteAddress', q.siteAddress);
+      sv('contactPhone', q.contactPhone);
+      sv('jobDescription', q.jobDescription);
+
+      if (q.stages && q.stages.length) {
+        stages = q.stages;
+      } else if (q.parts || q.labour) {
+        stages = [{
+          id: 'stage_' + Date.now(),
+          name: 'Stage 1',
+          parts: q.parts || [],
+          labour: (q.labour||[]).map(l => ({...l, gradeKey: l.gradeKey || 'Tradesman'})),
+          globalSupplier: ''
+        }];
+      } else {
+        stages = [{ id:'stage_'+Date.now(), name:'Stage 1', parts:[], labour:[], globalSupplier:'' }];
+      }
+      generalLabour = q.generalLabour || [];
+
+      renderStages();
+      renderGeneralLabour();
+      isDirty = false;
+      toast('Quote imported — ' + (q.quoteNumber || 'unnamed'), 'success');
+    } catch (err) {
+      toast('Could not read that file — is it a valid quote export?', 'error');
+    }
+    event.target.value = ''; // reset so the same file can be re-selected later
+  };
+  reader.readAsText(file);
+}
+
+function exportPDF(type) {
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const q=getQuoteData();
+  const T=calcGrandTotals();
+  const W=210, M=15;
+  const GRN=[39,174,96], DGN=[27,120,66], LGN=[232,247,238], WH=[255,255,255], DK=[30,30,30], MID=[60,60,60];
+
+  function drawHeader(title) {
+    const bizName = document.getElementById('businessName').value || 'My Business';
+    const initials = bizName.split(' ').map(w=>w[0]||'').join('').substring(0,3).toUpperCase() || '?';
+    doc.setFillColor(...GRN); doc.rect(0,0,W,20,'F');
+    doc.setTextColor(...WH); doc.setFontSize(13); doc.setFont('helvetica','bold');
+    doc.text(bizName,M,9);
+    doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text(title,M,16);
+    doc.setFontSize(8); doc.text(initials,W-M,9,{align:'right'});
+    doc.setFillColor(240,248,243); doc.rect(0,20,W,20,'F');
+    doc.setTextColor(...MID); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+    doc.text('QUOTE #',M,27); doc.text('CLIENT',58,27); doc.text('TRADE',115,27); doc.text('DATE',160,27);
+    doc.setFont('helvetica','normal');
+    doc.text(q.quoteNumber||'—',M,34);
+    doc.text((q.clientName||'—').substring(0,28),58,34);
+    doc.text((q.tradeType||'').toUpperCase(),115,34);
+    doc.text(q.quoteDate?new Date(q.quoteDate+'T00:00:00').toLocaleDateString('en-AU'):'—',160,34);
+    if(q.siteAddress){doc.setFontSize(7.5);doc.setTextColor(120,120,120);doc.text('Site: '+q.siteAddress,M,42);}
+    return 48;
+  }
+
+  function secHead(text,y) {
+    if (y > 270) { doc.addPage(); y = 15; }
+    doc.setFillColor(...DGN); doc.rect(M,y,W-M*2,6,'F');
+    doc.setTextColor(...WH); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+    doc.text(text,M+3,y+4.3);
+    return y+8;
+  }
+
+  function checkPageBreak(y, needed=20) {
+    if (y + needed > 280) { doc.addPage(); return 15; }
+    return y;
+  }
+
+  // ── FULL QUOTE ──
+  if (type==='quote') {
+    let y=drawHeader('QUOTATION DOCUMENT');
+    if(q.jobDescription){
+      doc.setFontSize(8);doc.setFont('helvetica','italic');doc.setTextColor(100,100,100);
+      const lines=doc.splitTextToSize('Scope: '+q.jobDescription,W-M*2);
+      doc.text(lines,M,y); y+=lines.length*4.5+2;
+    }
+
+    stages.forEach((stage) => {
+      const t = calcStageTotals(stage);
+      y = checkPageBreak(y, 30);
+      y = secHead(stage.name.toUpperCase() + ' (prices inc GST)', y);
+
+      if (stage.parts.length) {
+        doc.autoTable({startY:y,margin:{left:M,right:M},
+          head:[['#','Description','Supplier','Qty','Unit Cost','Total Cost','Markup','Sell Price']],
+          body:stage.parts.map((p,i)=>{
+            const tc=p.unitCost*p.qty;
+            return[i+1,p.desc||'',p.supplier||'',p.qty,fn(p.unitCost),fn(tc),p.markup+'%',fn(tc*(1+p.markup/100))];
+          }),
+          styles:{fontSize:8,cellPadding:2.5},
+          headStyles:{fillColor:DK,textColor:WH,fontStyle:'bold'},
+          columnStyles:{0:{halign:'center',cellWidth:8},3:{halign:'right',cellWidth:10},4:{halign:'right'},5:{halign:'right'},6:{halign:'right'},7:{halign:'right',fontStyle:'bold'}},
+          alternateRowStyles:{fillColor:[248,252,249]}
+        });
+        y=doc.lastAutoTable.finalY+3;
+      }
+      if (stage.labour.length) {
+        y = checkPageBreak(y, 20);
+        doc.autoTable({startY:y,margin:{left:M,right:M},
+          head:[['#','Description','Grade','Hours','Charge-Out Rate','Charge Total']],
+          body:stage.labour.map((l,i)=>[i+1,l.desc||'',GRADES[l.gradeKey]?.label||'',l.hours,fn(l.chargeRate),fn(l.hours*l.chargeRate)]),
+          styles:{fontSize:8,cellPadding:2.5},
+          headStyles:{fillColor:DK,textColor:WH,fontStyle:'bold'},
+          columnStyles:{0:{halign:'center',cellWidth:8},3:{halign:'right'},4:{halign:'right'},5:{halign:'right',fontStyle:'bold'}},
+          alternateRowStyles:{fillColor:[248,252,249]}
+        });
+        y=doc.lastAutoTable.finalY+3;
+      }
+      y = checkPageBreak(y, 12);
+      doc.autoTable({startY:y,margin:{left:M,right:M},
+        body:[[stage.name+' — Stage Total (inc GST)', fn(t.totSell)]],
+        styles:{fontSize:9,cellPadding:3},
+        columnStyles:{0:{fontStyle:'bold'},1:{halign:'right',fontStyle:'bold'}},
+        bodyStyles:{fillColor:[235,245,238]}
+      });
+      y=doc.lastAutoTable.finalY+6;
+    });
+
+    // General labour
+    if (generalLabour.length) {
+      const gl = calcGeneralLabourTotals();
+      y = checkPageBreak(y, 30);
+      y = secHead('GENERAL LABOUR (prices inc GST)', y);
+      doc.autoTable({startY:y,margin:{left:M,right:M},
+        head:[['#','Description','Grade','Hours','Charge-Out Rate','Charge Total']],
+        body:generalLabour.map((l,i)=>[i+1,l.desc||'',GRADES[l.gradeKey]?.label||'',l.hours,fn(l.chargeRate),fn(l.hours*l.chargeRate)]),
+        styles:{fontSize:8,cellPadding:2.5},
+        headStyles:{fillColor:DK,textColor:WH,fontStyle:'bold'},
+        columnStyles:{0:{halign:'center',cellWidth:8},3:{halign:'right'},4:{halign:'right'},5:{halign:'right',fontStyle:'bold'}},
+        alternateRowStyles:{fillColor:[248,252,249]}
+      });
+      y=doc.lastAutoTable.finalY+6;
+    }
+
+    // Grand summary
+    y = checkPageBreak(y, 40);
+    y=secHead('QUOTE SUMMARY',y);
+    const summaryRows = stages.map(stage => {
+      const t = calcStageTotals(stage);
+      return [stage.name, fn(t.totSell)];
+    });
+    if (generalLabour.length) {
+      const gl = calcGeneralLabourTotals();
+      summaryRows.push(['General Labour', fn(gl.lCharge)]);
+    }
+    summaryRows.push(['GRAND TOTAL (inc GST)', fn(T.totRev)]);
+    doc.autoTable({startY:y,margin:{left:M,right:M},
+      body: summaryRows,
+      styles:{fontSize:9,cellPadding:3.5},
+      columnStyles:{0:{cellWidth:130},1:{halign:'right',fontStyle:'bold'}},
+      didParseCell:d=>{
+        if(d.row.index===summaryRows.length-1){
+          d.cell.styles.fillColor=GRN; d.cell.styles.textColor=WH; d.cell.styles.fontStyle='bold'; d.cell.styles.fontSize=10;
+        }
+      },
+    });
+    const fy=doc.lastAutoTable.finalY+8;
+    doc.setFontSize(7);doc.setTextColor(170,170,170);doc.setFont('helvetica','italic');
+    doc.text('This quote is valid for 30 days from the date issued. All prices are in AUD and include GST.',M,fy);
+    doc.save(`Quote-${q.quoteNumber||'draft'}.pdf`);
+  }
+
+  // ── PARTS LIST ──
+  if (type==='parts') {
+    let y=drawHeader('PARTS & MATERIALS LIST');
+    stages.forEach(stage => {
+      if (!stage.parts.length) return;
+      y = checkPageBreak(y, 30);
+      y = secHead(stage.name.toUpperCase() + ' — PARTS (inc GST)', y);
+      doc.autoTable({startY:y,margin:{left:M,right:M},
+        head:[['#','Description','Supplier','Qty','Unit Cost (inc GST)','Total Cost (inc GST)']],
+        body:stage.parts.map((p,i)=>[i+1,p.desc||'',p.supplier||'',p.qty,fn(p.unitCost),fn(p.unitCost*p.qty)]),
+        styles:{fontSize:8.5,cellPadding:3},
+        headStyles:{fillColor:DK,textColor:WH,fontStyle:'bold'},
+        columnStyles:{0:{halign:'center',cellWidth:10},3:{halign:'right',cellWidth:14},4:{halign:'right',cellWidth:32},5:{halign:'right',cellWidth:34}},
+        alternateRowStyles:{fillColor:[248,252,249]}
+      });
+      const stageCost = stage.parts.reduce((sum,p)=>sum+p.unitCost*p.qty,0);
+      const fy=doc.lastAutoTable.finalY+2;
+      doc.autoTable({startY:fy,margin:{left:W-90,right:M},
+        body:[[stage.name+' Parts Total', fn(stageCost)]],
+        styles:{fontSize:8.5,cellPadding:2.5},
+        columnStyles:{0:{fontStyle:'bold'},1:{halign:'right',fontStyle:'bold'}},
+        bodyStyles:{fillColor:LGN,textColor:[27,120,66]}
+      });
+      y=doc.lastAutoTable.finalY+6;
+    });
+    y = checkPageBreak(y, 14);
+    doc.autoTable({startY:y,margin:{left:W-90,right:M},
+      body:[['GRAND TOTAL PARTS COST (inc GST)', fn(T.pCost)]],
+      styles:{fontSize:9.5,cellPadding:3},
+      columnStyles:{0:{fontStyle:'bold'},1:{halign:'right',fontStyle:'bold'}},
+      bodyStyles:{fillColor:GRN,textColor:WH}
+    });
+    doc.save(`Parts-${q.quoteNumber||'draft'}.pdf`);
+  }
+
+  // ── BACK COSTING ──
+  if (type==='backcost') {
+    let y=drawHeader('BACK-COSTING REPORT');
+
+    stages.forEach(stage => {
+      const t = calcStageTotals(stage);
+      const pGP = t.pSell-(t.pCost/1.1), pGPpct = t.pSell>0?(pGP/t.pSell)*100:0;
+      const lGP = t.lCharge-(t.lCost/1.1), lGPpct = t.lCharge>0?(lGP/t.lCharge)*100:0;
+
+      y = checkPageBreak(y, 30);
+      y = secHead(stage.name.toUpperCase(), y);
+
+      if (stage.parts.length) {
+        doc.autoTable({startY:y,margin:{left:M,right:M},
+          head:[['#','Description','Qty','Cost(inc)','Cost(ex)','Markup','Sell','GP $','GP %']],
+          body:stage.parts.map((p,i)=>{
+            const tc=p.unitCost*p.qty, tcEx=tc/1.1, sell=tc*(1+p.markup/100), gp=sell-tcEx;
+            return[i+1,p.desc||'',p.qty,fn(tc),fn(tcEx),p.markup+'%',fn(sell),fn(gp),sell>0?((gp/sell)*100).toFixed(1)+'%':'—'];
+          }),
+          styles:{fontSize:7.5,cellPadding:2},
+          headStyles:{fillColor:DK,textColor:WH},
+          columnStyles:{0:{halign:'center',cellWidth:8},2:{halign:'right'},3:{halign:'right'},4:{halign:'right'},5:{halign:'right'},6:{halign:'right'},7:{halign:'right'},8:{halign:'right'}},
+          alternateRowStyles:{fillColor:[248,252,249]}
+        });
+        y=doc.lastAutoTable.finalY+3;
+      }
+      if (stage.labour.length) {
+        y = checkPageBreak(y, 20);
+        doc.autoTable({startY:y,margin:{left:M,right:M},
+          head:[['#','Description','Grade','Hrs','Cost/hr','Cost$','Charge/hr','Charge$','GP $','GP %']],
+          body:stage.labour.map((l,i)=>{
+            const tc=l.hours*l.costRate, tcEx=tc/1.1, ch=l.hours*l.chargeRate, gp=ch-tcEx;
+            return[i+1,l.desc||'',GRADES[l.gradeKey]?.label||'',l.hours,fn(l.costRate),fn(tcEx),fn(l.chargeRate),fn(ch),fn(gp),ch>0?((gp/ch)*100).toFixed(1)+'%':'—'];
+          }),
+          styles:{fontSize:7,cellPadding:2},
+          headStyles:{fillColor:DK,textColor:WH},
+          columnStyles:{0:{halign:'center',cellWidth:8},3:{halign:'right'},4:{halign:'right'},5:{halign:'right'},6:{halign:'right'},7:{halign:'right'},8:{halign:'right'},9:{halign:'right'}},
+          alternateRowStyles:{fillColor:[248,252,249]}
+        });
+        y=doc.lastAutoTable.finalY+3;
+      }
+      y = checkPageBreak(y, 14);
+      doc.autoTable({startY:y,margin:{left:M,right:M},
+        body:[[stage.name+' — GP $', fn(t.gp), 'GP %', t.gpPct.toFixed(1)+'%']],
+        styles:{fontSize:8.5,cellPadding:3},
+        columnStyles:{0:{fontStyle:'bold',cellWidth:60},1:{halign:'right',cellWidth:35},2:{fontStyle:'bold',cellWidth:50},3:{halign:'right'}},
+        bodyStyles:{fillColor: t.gp>=0 ? [235,245,238] : [250,235,235]}
+      });
+      y=doc.lastAutoTable.finalY+6;
+    });
+
+    if (generalLabour.length) {
+      const gl = calcGeneralLabourTotals();
+      const glGP = gl.lCharge-(gl.lCost/1.1), glGPpct = gl.lCharge>0?(glGP/gl.lCharge)*100:0;
+      y = checkPageBreak(y, 30);
+      y = secHead('GENERAL LABOUR', y);
+      doc.autoTable({startY:y,margin:{left:M,right:M},
+        head:[['#','Description','Grade','Hrs','Cost/hr','Cost$','Charge/hr','Charge$','GP $','GP %']],
+        body:generalLabour.map((l,i)=>{
+          const tc=l.hours*l.costRate, tcEx=tc/1.1, ch=l.hours*l.chargeRate, gp=ch-tcEx;
+          return[i+1,l.desc||'',GRADES[l.gradeKey]?.label||'',l.hours,fn(l.costRate),fn(tcEx),fn(l.chargeRate),fn(ch),fn(gp),ch>0?((gp/ch)*100).toFixed(1)+'%':'—'];
+        }),
+        styles:{fontSize:7,cellPadding:2},
+        headStyles:{fillColor:DK,textColor:WH},
+        columnStyles:{0:{halign:'center',cellWidth:8},3:{halign:'right'},4:{halign:'right'},5:{halign:'right'},6:{halign:'right'},7:{halign:'right'},8:{halign:'right'},9:{halign:'right'}},
+        alternateRowStyles:{fillColor:[248,252,249]}
+      });
+      y=doc.lastAutoTable.finalY+6;
+    }
+
+    y = checkPageBreak(y, 50);
+    y=secHead('OVERALL PROFITABILITY — ALL STAGES + GENERAL LABOUR',y);
+    doc.autoTable({startY:y,margin:{left:M,right:M},
+      body:[
+        ['Total Cost (inc GST)',fn(T.totCost),'Total Cost (ex GST)',fn(T.totCostExGST)],
+        ['Total Revenue (inc GST)',fn(T.totRev),'Markup on Cost %',T.mkup.toFixed(1)+'%'],
+        ['GROSS PROFIT $',fn(T.gp),'GP MARGIN %',T.gpPct.toFixed(1)+'%'],
+      ],
+      styles:{fontSize:8.5,cellPadding:3},
+      columnStyles:{0:{fontStyle:'bold',cellWidth:52},1:{halign:'right',cellWidth:28},2:{fontStyle:'bold',cellWidth:52},3:{halign:'right'}},
+      alternateRowStyles:{fillColor:[248,252,249]},
+      didParseCell:d=>{
+        if(d.row.index===2){
+          d.cell.styles.fillColor=GRN; d.cell.styles.textColor=WH; d.cell.styles.fontStyle='bold'; d.cell.styles.fontSize=9.5;
+        }
+      },
+    });
+    doc.save(`BackCost-${q.quoteNumber||'draft'}.pdf`);
+  }
+  toast('PDF exported ✓','success');
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────
+const fmt = n => '$'+(n||0).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fn  = n => '$'+(n||0).toFixed(2);
+const fv  = id => parseFloat(document.getElementById(id).value)||0;
+const gv  = id => document.getElementById(id).value||'';
+const sv  = (id,v) => { document.getElementById(id).value = v||''; };
+const setText = (id,v) => { const el=document.getElementById(id); if(el) el.textContent = v; };
+const esc = s => (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+
+function colorVal(id,text,val,mode) {
+  const el=document.getElementById(id);
+  if (!el) return;
+  el.textContent=text;
+  const cls = mode==='pct'
+    ? (val>=40?'green':val>=20?'':'red')
+    : (val>0?'green':val<0?'red':'');
+  el.className = el.className.replace(/\b(green|red|yellow)\b/g,'').trim() + (cls?' '+cls:'');
+}
+function colorValEl(el, text, val) {
+  if (!el) return;
+  el.textContent = text;
+  el.style.color = val >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+function toast(msg,type='success') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+type;
+  setTimeout(()=>t.className='toast',2800);
+}
+
+window.addEventListener('beforeunload',e=>{ if(isDirty){e.preventDefault();e.returnValue='';} });
+
+</script>
+</body>
+</html>
